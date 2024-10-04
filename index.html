@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dialpad Connector</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: white;
+      }
+      .container {
+        width: 100vw;
+        padding: 20px;
+        background: white;
+        text-align: center;
+        height: 100vh;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px;
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #spinner {
+        display: none;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Dialpad Connector</h2>
+      <div id="spinner">
+        <img
+          src="https://www.example.com/spinner.gif"
+          alt="Loading..."
+          width="50"
+          height="50"
+        />
+      </div>
+      <div id="apiKeySection">
+        <input type="text" id="apiKey" placeholder="Enter API Key" />
+        <button onclick="saveApiKey()">Save API Key</button>
+      </div>
+      <div id="proceedSection" style="display: none">
+        <button onclick="proceed()">Proceed</button>
+      </div>
+    </div>
+
+    <script>
+      // Show the spinner
+      function showSpinner() {
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("apiKeySection").style.display = "none";
+        document.getElementById("proceedSection").style.display = "none";
+      }
+
+      // Hide the spinner
+      function hideSpinner() {
+        document.getElementById("spinner").style.display = "none";
+      }
+      // Load the stored API key when the page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        showSpinner(); // Show spinner while loading the API key
+
+        google.script.run
+          .withSuccessHandler(function (apiKey) {
+            hideSpinner();
+            if (apiKey) {
+              document.getElementById("apiKeySection").style.display = "none";
+              document.getElementById("proceedSection").style.display = "block";
+            }
+          })
+          .getStoredApiKey();
+      });
+
+      // Save the API key to Script Properties
+      function saveApiKey() {
+        var apiKey = document.getElementById("apiKey").value;
+        if (apiKey) {
+          google.script.run
+            .withSuccessHandler(function () {
+              document.getElementById("apiKeySection").style.display = "none";
+              document.getElementById("proceedSection").style.display = "block";
+            })
+            .storeApiKey(apiKey);
+        } else {
+          alert("Please enter a valid API key.");
+        }
+      }
+
+      // Proceed to the departments screen
+      function proceed() {
+        showSpinner();
+        google.script.run.showDepartments();
+      }
+    </script>
+  </body>
+</html>

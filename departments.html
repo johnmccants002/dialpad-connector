@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Select Department</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: white;
+      }
+      .container {
+        width: 100vw;
+        padding: 20px;
+        background: white;
+        height: 100vh;
+      }
+      #departmentsList {
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 10px 0;
+        padding: 0;
+        list-style: none;
+      }
+      .department-item {
+        padding: 10px;
+        margin: 5px 0;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .department-item:hover {
+        background-color: #0056b3;
+      }
+      #spinner {
+        display: none;
+        margin-top: 20px;
+      }
+      .back-button {
+        font-size: 30px;
+        font-weight: bold;
+        position: relative;
+        left: 10px;
+        top: 10px;
+        background-color: transparent;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Back button with an icon -->
+      <button class="back-button" onclick="goBack()">
+        &#8592;
+        <!-- Unicode for a left arrow -->
+      </button>
+
+      <h2>Select Department</h2>
+      <div id="spinner">
+        <img
+          src="https://www.example.com/spinner.gif"
+          alt="Loading..."
+          width="50"
+          height="50"
+        />
+      </div>
+      <ul id="departmentsList">
+        <!-- Departments will be populated here -->
+      </ul>
+    </div>
+
+    <script>
+      // Show the spinner
+      function showSpinner() {
+        document.getElementById("spinner").style.display = "block";
+      }
+
+      // Hide the spinner
+      function hideSpinner() {
+        document.getElementById("spinner").style.display = "none";
+      }
+
+      // Fetch and display the list of departments
+      document.addEventListener("DOMContentLoaded", function () {
+        showSpinner(); // Show spinner while fetching departments
+        google.script.run
+          .withSuccessHandler(function (departments) {
+            hideSpinner(); // Hide spinner after fetching is complete
+            displayDepartments(departments);
+          })
+          .withFailureHandler(function (error) {
+            hideSpinner(); // Hide spinner in case of error
+            alert("Failed to load departments: " + error.message);
+          })
+          .getDepartments();
+      });
+
+      // Display departments in the scroll view
+      function displayDepartments(departments) {
+        var list = document.getElementById("departmentsList");
+        list.innerHTML = ""; // Clear the list
+
+        departments.forEach(function (department) {
+          var listItem = document.createElement("li");
+          listItem.textContent = department.name;
+          listItem.className = "department-item";
+          listItem.onclick = function () {
+            selectDepartment(department.id, department.name);
+          };
+          list.appendChild(listItem);
+        });
+      }
+
+      // Handle department selection
+      function selectDepartment(departmentId, departmentName) {
+        google.script.run
+          .withSuccessHandler(function () {
+            google.script.run.showCallData(departmentId, departmentName);
+          })
+          .storeSelectedDepartment(departmentId, departmentName);
+      }
+
+      function goBack() {
+        google.script.run.showIndex();
+      }
+    </script>
+  </body>
+</html>
